@@ -125,7 +125,7 @@ function renderTable() {
   if (!entries.length) {
     elements.entriesTableBody.innerHTML = `
       <tr>
-        <td colspan="5" class="empty-state">Пока нет ни одной смены</td>
+        <td colspan="6" class="empty-state">Пока нет ни одной смены</td>
       </tr>
     `;
     return;
@@ -135,6 +135,7 @@ function renderTable() {
     .map((entry) => {
       const money = Number(entry.hours || 0) * Number(entry.rate || state.hourRate || 0);
       const date = new Date(`${entry.date}T00:00:00`).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const lunchChecked = Boolean(entry.lunchBreak);
 
       return `
         <tr>
@@ -142,6 +143,12 @@ function renderTable() {
           <td>${Number(entry.hours || 0).toFixed(1)} ч</td>
           <td>${formatCurrency(Number(entry.rate || state.hourRate || 0))}</td>
           <td>${formatCurrency(money)}</td>
+          <td>
+            <label class="table-switch" title="Вычесть 30 минут обеда">
+              <input class="entry-lunch-toggle" data-id="${entry.id}" type="checkbox" ${lunchChecked ? 'checked' : ''} />
+              <span class="switch-slider"></span>
+            </label>
+          </td>
           <td><button class="delete-btn" data-id="${entry.id}" type="button">Удалить</button></td>
         </tr>
       `;
@@ -282,6 +289,8 @@ function addEntry(event) {
     id: crypto.randomUUID(),
     date,
     hours: paidHours,
+    baseHours: hours,
+    lunchBreak: elements.lunchBreakInput.checked,
     startTime,
     endTime,
     rate,
@@ -299,6 +308,18 @@ function addEntry(event) {
 
 function removeEntry(id) {
   state.entries = state.entries.filter((entry) => entry.id !== id);
+  saveState();
+  renderAll();
+}
+
+function toggleEntryLunch(id, enabled) {
+  const entry = state.entries.find((item) => item.id === id);
+  if (!entry) return;
+
+  const baseHours = Number(entry.baseHours ?? entry.hours ?? 0);
+  entry.baseHours = baseHours;
+  entry.lunchBreak = enabled;
+  entry.hours = Math.max(0, baseHours - (enabled ? 0.5 : 0));
   saveState();
   renderAll();
 }
@@ -373,6 +394,11 @@ function bindEvents() {
     const button = event.target.closest('.delete-btn');
     if (!button) return;
     removeEntry(button.dataset.id);
+  });
+  elements.entriesTableBody.addEventListener('change', (event) => {
+    const toggle = event.target.closest('.entry-lunch-toggle');
+    if (!toggle) return;
+    toggleEntryLunch(toggle.dataset.id, toggle.checked);
   });
   elements.hourRateInput.addEventListener('input', updateConfig);
   elements.lunchBreakInput.addEventListener('change', updateConfig);
