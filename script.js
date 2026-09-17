@@ -124,7 +124,7 @@ function renderTable() {
   if (!entries.length) {
     elements.entriesTableBody.innerHTML = `
       <tr>
-        <td colspan="4" class="empty-state">Пока нет ни одной смены</td>
+        <td colspan="5" class="empty-state">Пока нет ни одной смены</td>
       </tr>
     `;
     return;
@@ -141,6 +141,7 @@ function renderTable() {
           <td>${Number(entry.hours || 0).toFixed(1)} ч</td>
           <td>${formatCurrency(Number(entry.rate || state.hourRate || 0))}</td>
           <td>${formatCurrency(money)}</td>
+          <td><button class="delete-btn" data-id="${entry.id}" type="button">Удалить</button></td>
         </tr>
       `;
     })
@@ -293,6 +294,11 @@ function bindEvents() {
   elements.nextMonthBtn.addEventListener('click', () => {
     calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 1);
     renderCalendar();
+  });
+  elements.entriesTableBody.addEventListener('click', (event) => {
+    const button = event.target.closest('.delete-btn');
+    if (!button) return;
+    removeEntry(button.dataset.id);
   });
   elements.hourRateInput.addEventListener('input', updateConfig);
   elements.averageShiftInput.addEventListener('input', updateConfig);
