@@ -201,6 +201,58 @@ body:not(.view-report) .dashboard > .chart-panel {
   box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
 }
 
+.checkbox-field {
+  justify-content: center;
+}
+
+.checkbox-field small {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.switch-control {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 30px;
+}
+
+.switch-control input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  border-radius: 999px;
+  background: rgba(100, 116, 139, 0.55);
+  transition: background 0.2s ease;
+}
+
+.switch-slider::before {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  left: 4px;
+  top: 4px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.2s ease;
+}
+
+.switch-control input:checked + .switch-slider {
+  background: var(--blue);
+}
+
+.switch-control input:checked + .switch-slider::before {
+  transform: translateX(22px);
+}
+
 .quick-actions {
   margin-top: 20px;
 }

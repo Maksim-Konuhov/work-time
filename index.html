@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=4" />
+    <link rel="stylesheet" href="style.css?v=5" />
   </head>
   <body>
     <div class="app-shell">
@@ -40,9 +40,13 @@
               <input id="hourRateInput" type="number" min="0" step="0.01" value="450" />
             </label>
 
-            <label class="field">
-              <span>Средняя длина смены, ч</span>
-              <input id="averageShiftInput" type="number" min="1" step="0.5" value="8" />
+            <label class="field checkbox-field">
+              <span>Вычитать обед</span>
+              <span class="switch-control">
+                <input id="lunchBreakInput" type="checkbox" />
+                <span class="switch-slider"></span>
+              </span>
+              <small>Минус 30 минут из каждой новой смены</small>
             </label>
           </div>
 
@@ -153,6 +157,6 @@
       </main>
     </div>
 
-    <script src="script.js?v=5"></script>
+    <script src="script.js?v=6"></script>
   </body>
 </html>

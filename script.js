@@ -9,7 +9,7 @@ const defaultEntries = [
 
 const elements = {
   hourRateInput: document.querySelector('#hourRateInput'),
-  averageShiftInput: document.querySelector('#averageShiftInput'),
+  lunchBreakInput: document.querySelector('#lunchBreakInput'),
   dateInput: document.querySelector('#dateInput'),
   startTimeInput: document.querySelector('#startTimeInput'),
   endTimeInput: document.querySelector('#endTimeInput'),
@@ -45,7 +45,7 @@ function loadState() {
 
   return {
     hourRate: 450,
-    averageShiftHours: 8,
+    lunchBreak: false,
     entries: defaultEntries
   };
 }
@@ -53,7 +53,7 @@ function loadState() {
 function saveState() {
   const payload = {
     hourRate: Number(elements.hourRateInput.value) || 0,
-    averageShiftHours: Number(elements.averageShiftInput.value) || 0,
+    lunchBreak: elements.lunchBreakInput.checked,
     entries: state.entries
   };
 
@@ -197,7 +197,7 @@ function renderCalendar() {
 
 function syncInputsFromState() {
   elements.hourRateInput.value = String(state.hourRate || 450);
-  elements.averageShiftInput.value = String(state.averageShiftHours || 8);
+  elements.lunchBreakInput.checked = Boolean(state.lunchBreak);
   elements.shiftRateInput.value = String(state.hourRate || 450);
   const today = new Date().toISOString().slice(0, 10);
   elements.dateInput.value = today;
@@ -212,7 +212,7 @@ function parseTimeInput(value) {
     hours = Number(normalized.slice(0, -2));
     minutes = Number(normalized.slice(-2));
   } else {
-    const match = normalized.match(/^(\d{1,2})(?::(\d{1,2}))?$/);
+    const match = normalized.match(/^(\d{1,2})(?::(\d{1,2})?)?$/);
     if (!match) return null;
     hours = Number(match[1]);
     minutes = Number(match[2] || 0);
@@ -269,10 +269,11 @@ function addEntry(event) {
   const startTime = start?.value || '';
   const endTime = end?.value || '';
   const hours = calculateShiftHours(startTime, endTime);
+  const paidHours = Math.max(0, hours - (elements.lunchBreakInput.checked ? 0.5 : 0));
   const rate = Number(elements.shiftRateInput.value || elements.hourRateInput.value || 0);
   const note = elements.noteInput.value.trim();
 
-  if (!date || !start || !end || !hours || hours <= 0 || startTime === endTime) {
+  if (!date || !start || !end || !paidHours || paidHours <= 0 || startTime === endTime) {
     alert('Введите время от 00:00 до 23:59. Например: 16:00 или 04:00');
     return;
   }
@@ -280,7 +281,7 @@ function addEntry(event) {
   state.entries.push({
     id: crypto.randomUUID(),
     date,
-    hours,
+    hours: paidHours,
     startTime,
     endTime,
     rate,
@@ -308,7 +309,7 @@ function resetData() {
 
   state = {
     hourRate: 450,
-    averageShiftHours: 8,
+    lunchBreak: false,
     entries: defaultEntries.map((item) => ({ ...item, id: crypto.randomUUID() }))
   };
 
@@ -319,7 +320,7 @@ function resetData() {
 function setExampleData() {
   state = {
     hourRate: 450,
-    averageShiftHours: 8,
+    lunchBreak: false,
     entries: [
       { id: crypto.randomUUID(), date: '2026-09-10', hours: 8, rate: 450, note: 'Рабочий день' },
       { id: crypto.randomUUID(), date: '2026-09-11', hours: 7.5, rate: 450, note: 'Сменный график' },
@@ -335,7 +336,7 @@ function setExampleData() {
 
 function updateConfig() {
   state.hourRate = Number(elements.hourRateInput.value) || 0;
-  state.averageShiftHours = Number(elements.averageShiftInput.value) || 0;
+  state.lunchBreak = elements.lunchBreakInput.checked;
   elements.shiftRateInput.value = String(state.hourRate || 0);
   saveState();
   renderAll();
@@ -374,7 +375,7 @@ function bindEvents() {
     removeEntry(button.dataset.id);
   });
   elements.hourRateInput.addEventListener('input', updateConfig);
-  elements.averageShiftInput.addEventListener('input', updateConfig);
+  elements.lunchBreakInput.addEventListener('change', updateConfig);
 }
 
 function renderAll() {
