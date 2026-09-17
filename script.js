@@ -203,12 +203,38 @@ function syncInputsFromState() {
   elements.dateInput.value = today;
 }
 
+function parseTimeInput(value) {
+  const normalized = value.trim().replace('.', ':');
+  let hours;
+  let minutes;
+
+  if (/^\d{3,4}$/.test(normalized)) {
+    hours = Number(normalized.slice(0, -2));
+    minutes = Number(normalized.slice(-2));
+  } else {
+    const match = normalized.match(/^(\d{1,2})(?::(\d{1,2}))?$/);
+    if (!match) return null;
+    hours = Number(match[1]);
+    minutes = Number(match[2] || 0);
+  }
+
+  if (hours > 23 || minutes > 59) return null;
+
+  return {
+    hours,
+    minutes,
+    value: `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
+  };
+}
+
 function calculateShiftHours(startTime, endTime) {
-  const [startHours, startMinutes] = startTime.split(':').map(Number);
-  const [endHours, endMinutes] = endTime.split(':').map(Number);
-  const start = startHours * 60 + startMinutes;
-  const end = endHours * 60 + endMinutes;
-  let duration = end - start;
+  const start = parseTimeInput(startTime);
+  const end = parseTimeInput(endTime);
+  if (!start || !end) return 0;
+
+  const startMinutes = start.hours * 60 + start.minutes;
+  const endMinutes = end.hours * 60 + end.minutes;
+  let duration = endMinutes - startMinutes;
 
   if (duration < 0) {
     duration += 24 * 60;
@@ -221,14 +247,16 @@ function addEntry(event) {
   event.preventDefault();
 
   const date = elements.dateInput.value;
-  const startTime = elements.startTimeInput.value;
-  const endTime = elements.endTimeInput.value;
+  const start = parseTimeInput(elements.startTimeInput.value);
+  const end = parseTimeInput(elements.endTimeInput.value);
+  const startTime = start?.value || '';
+  const endTime = end?.value || '';
   const hours = calculateShiftHours(startTime, endTime);
   const rate = Number(elements.shiftRateInput.value || elements.hourRateInput.value || 0);
   const note = elements.noteInput.value.trim();
 
-  if (!date || !startTime || !endTime || !hours || hours <= 0 || startTime === endTime) {
-    alert('Проверьте дату, начало и конец смены');
+  if (!date || !start || !end || !hours || hours <= 0 || startTime === endTime) {
+    alert('Введите дату и время в формате 16:00 или 4:00');
     return;
   }
 
@@ -298,6 +326,12 @@ function updateConfig() {
 
 function bindEvents() {
   elements.shiftForm.addEventListener('submit', addEntry);
+  [elements.startTimeInput, elements.endTimeInput].forEach((input) => {
+    input.addEventListener('blur', () => {
+      const parsed = parseTimeInput(input.value);
+      if (parsed) input.value = parsed.value;
+    });
+  });
   elements.resetDataBtn.addEventListener('click', resetData);
   elements.useExampleBtn.addEventListener('click', setExampleData);
   elements.menuToggle.addEventListener('click', () => {

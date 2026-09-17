@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=3" />
+    <link rel="stylesheet" href="style.css?v=4" />
   </head>
   <body>
     <div class="app-shell">
@@ -65,12 +65,12 @@
 
               <label class="field">
                 <span>Начало смены</span>
-                <input id="startTimeInput" type="time" value="09:00" required />
+                <input id="startTimeInput" type="text" inputmode="numeric" placeholder="Например, 16:00" value="09:00" maxlength="5" required />
               </label>
 
               <label class="field">
                 <span>Конец смены</span>
-                <input id="endTimeInput" type="time" value="17:00" required />
+                <input id="endTimeInput" type="text" inputmode="numeric" placeholder="Например, 04:00" value="17:00" maxlength="5" required />
               </label>
 
               <label class="field">
@@ -153,6 +153,6 @@
       </main>
     </div>
 
-    <script src="script.js?v=2"></script>
+    <script src="script.js?v=3"></script>
   </body>
 </html>
