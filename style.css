@@ -151,8 +151,7 @@ body.view-report .dashboard > .table-panel {
 }
 
 body:not(.view-report) .dashboard > .calendar-panel,
-body:not(.view-report) .dashboard > .chart-panel,
-body:not(.view-report) .dashboard > .table-panel {
+body:not(.view-report) .dashboard > .chart-panel {
   display: none;
 }
 
@@ -519,7 +518,6 @@ tbody tr:hover {
   }
 
   .chart-panel,
-  .table-panel,
   .calendar-panel {
     display: none;
   }
