@@ -234,6 +234,16 @@ function formatTimeInput(input) {
     : digits;
 }
 
+function normalizeInvalidTimeInput(input) {
+  const digits = input.value.replace(/\D/g, '');
+  if (digits.length < 2) return;
+
+  const hours = Number(digits.slice(0, 2));
+  if (hours > 23) {
+    input.value = `${digits.charAt(0)}:00`;
+  }
+}
+
 function calculateShiftHours(startTime, endTime) {
   const start = parseTimeInput(startTime);
   const end = parseTimeInput(endTime);
@@ -263,7 +273,7 @@ function addEntry(event) {
   const note = elements.noteInput.value.trim();
 
   if (!date || !start || !end || !hours || hours <= 0 || startTime === endTime) {
-    alert('Введите дату и время в формате 16:00 или 4:00');
+    alert('Введите время от 00:00 до 23:59. Например: 16:00 или 04:00');
     return;
   }
 
@@ -336,6 +346,7 @@ function bindEvents() {
   [elements.startTimeInput, elements.endTimeInput].forEach((input) => {
     input.addEventListener('input', () => formatTimeInput(input));
     input.addEventListener('blur', () => {
+      normalizeInvalidTimeInput(input);
       const parsed = parseTimeInput(input.value);
       if (parsed) input.value = parsed.value;
     });
