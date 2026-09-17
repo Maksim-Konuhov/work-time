@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Рабочее время и заработок</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Счётчик рабочего времени</p>
+          <h1>График заработка и смен</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="ghost-btn menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="mobileMenu">☰</button>
+          <button class="ghost-btn back-btn" id="backToHomeBtn" type="button">← Назад</button>
+          <button class="ghost-btn reset-btn" id="resetDataBtn" type="button">Сбросить данные</button>
+        </div>
+      </header>
+
+      <nav class="mobile-menu" id="mobileMenu" aria-label="Дополнительные разделы">
+        <a class="home-link" href="index.html">Главная — добавить смену</a>
+        <a href="index.html?view=report">Статистика и история смен</a>
+      </nav>
+
+      <main class="dashboard">
+        <section class="panel settings-panel">
+          <div class="panel-header">
+            <h2>Настройки</h2>
+          </div>
+
+          <div class="field-grid">
+            <label class="field">
+              <span>Ставка за час</span>
+              <input id="hourRateInput" type="number" min="0" step="0.01" value="450" />
+            </label>
+
+            <label class="field">
+              <span>Средняя длина смены, ч</span>
+              <input id="averageShiftInput" type="number" min="1" step="0.5" value="8" />
+            </label>
+          </div>
+
+          <div class="quick-actions">
+            <button id="useExampleBtn" type="button" class="primary-btn">Подставить пример</button>
+          </div>
+        </section>
+
+        <section class="panel form-panel">
+          <div class="panel-header">
+            <h2>Добавить смену</h2>
+          </div>
+
+          <form id="shiftForm">
+            <div class="field-grid">
+              <label class="field">
+                <span>Дата</span>
+                <input id="dateInput" type="date" required />
+              </label>
+
+              <label class="field">
+                <span>Часов</span>
+                <input id="hoursInput" type="number" min="1" step="0.5" value="8" required />
+              </label>
+
+              <label class="field">
+                <span>Ставка за час</span>
+                <input id="shiftRateInput" type="number" min="0" step="0.01" value="450" />
+              </label>
+
+              <label class="field">
+                <span>Примечание</span>
+                <input id="noteInput" type="text" placeholder="Например: ночная смена" />
+              </label>
+            </div>
+
+            <button type="submit" class="primary-btn wide">Добавить</button>
+          </form>
+        </section>
+
+        <section class="stats-grid" aria-label="Итоги">
+          <article class="stat-card accent-blue">
+            <p>Всего часов</p>
+            <h3 id="totalHours">0</h3>
+          </article>
+          <article class="stat-card accent-green">
+            <p>Дней / смен</p>
+            <h3 id="totalShifts">0</h3>
+          </article>
+          <article class="stat-card accent-orange">
+            <p>Заработок</p>
+            <h3 id="totalEarned">0 ₽</h3>
+          </article>
+          <article class="stat-card accent-purple">
+            <p>Сред. смена</p>
+            <h3 id="averageShift">0 ч</h3>
+          </article>
+        </section>
+
+        <section class="panel calendar-panel">
+          <div class="panel-header calendar-header">
+            <h2>Календарь рабочих дней</h2>
+            <div class="calendar-controls">
+              <button class="ghost-btn calendar-nav-btn" id="previousMonthBtn" type="button" aria-label="Предыдущий месяц">‹</button>
+              <strong id="calendarMonthLabel"></strong>
+              <button class="ghost-btn calendar-nav-btn" id="nextMonthBtn" type="button" aria-label="Следующий месяц">›</button>
+            </div>
+          </div>
+          <div id="calendar" class="calendar" aria-live="polite"></div>
+          <div class="calendar-legend">
+            <span><i class="legend-dot worked"></i> Работал</span>
+            <span><i class="legend-dot day-off"></i> Выходной</span>
+          </div>
+        </section>
+
+        <section class="panel chart-panel">
+          <div class="panel-header">
+            <h2>График по дням</h2>
+          </div>
+          <div id="chart" class="chart" aria-live="polite"></div>
+        </section>
+
+        <section class="panel table-panel">
+          <div class="panel-header">
+            <h2>История смен</h2>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Дата</th>
+                  <th>Часы</th>
+                  <th>Ставка</th>
+                  <th>Сумма</th>
+                  <th>Примечание</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="entriesTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
