@@ -227,6 +227,13 @@ function parseTimeInput(value) {
   };
 }
 
+function formatTimeInput(input) {
+  const digits = input.value.replace(/\D/g, '').slice(0, 4);
+  input.value = digits.length >= 2
+    ? `${digits.slice(0, 2)}:${digits.slice(2)}`
+    : digits;
+}
+
 function calculateShiftHours(startTime, endTime) {
   const start = parseTimeInput(startTime);
   const end = parseTimeInput(endTime);
@@ -327,6 +334,7 @@ function updateConfig() {
 function bindEvents() {
   elements.shiftForm.addEventListener('submit', addEntry);
   [elements.startTimeInput, elements.endTimeInput].forEach((input) => {
+    input.addEventListener('input', () => formatTimeInput(input));
     input.addEventListener('blur', () => {
       const parsed = parseTimeInput(input.value);
       if (parsed) input.value = parsed.value;
