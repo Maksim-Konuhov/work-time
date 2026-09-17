@@ -11,7 +11,8 @@ const elements = {
   hourRateInput: document.querySelector('#hourRateInput'),
   averageShiftInput: document.querySelector('#averageShiftInput'),
   dateInput: document.querySelector('#dateInput'),
-  hoursInput: document.querySelector('#hoursInput'),
+  startTimeInput: document.querySelector('#startTimeInput'),
+  endTimeInput: document.querySelector('#endTimeInput'),
   shiftRateInput: document.querySelector('#shiftRateInput'),
   noteInput: document.querySelector('#noteInput'),
   totalHours: document.querySelector('#totalHours'),
@@ -202,16 +203,32 @@ function syncInputsFromState() {
   elements.dateInput.value = today;
 }
 
+function calculateShiftHours(startTime, endTime) {
+  const [startHours, startMinutes] = startTime.split(':').map(Number);
+  const [endHours, endMinutes] = endTime.split(':').map(Number);
+  const start = startHours * 60 + startMinutes;
+  const end = endHours * 60 + endMinutes;
+  let duration = end - start;
+
+  if (duration < 0) {
+    duration += 24 * 60;
+  }
+
+  return duration / 60;
+}
+
 function addEntry(event) {
   event.preventDefault();
 
   const date = elements.dateInput.value;
-  const hours = Number(elements.hoursInput.value);
+  const startTime = elements.startTimeInput.value;
+  const endTime = elements.endTimeInput.value;
+  const hours = calculateShiftHours(startTime, endTime);
   const rate = Number(elements.shiftRateInput.value || elements.hourRateInput.value || 0);
   const note = elements.noteInput.value.trim();
 
-  if (!date || !hours || hours <= 0) {
-    alert('Проверьте дату и количество часов');
+  if (!date || !startTime || !endTime || !hours || hours <= 0 || startTime === endTime) {
+    alert('Проверьте дату, начало и конец смены');
     return;
   }
 
@@ -219,12 +236,15 @@ function addEntry(event) {
     id: crypto.randomUUID(),
     date,
     hours,
+    startTime,
+    endTime,
     rate,
     note
   });
 
   elements.noteInput.value = '';
-  elements.hoursInput.value = String(elements.averageShiftInput.value || 8);
+  elements.startTimeInput.value = '09:00';
+  elements.endTimeInput.value = '17:00';
   elements.shiftRateInput.value = elements.hourRateInput.value;
 
   saveState();
