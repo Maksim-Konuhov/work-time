@@ -150,6 +150,12 @@ body.view-report .dashboard > .table-panel {
   display: block;
 }
 
+body:not(.view-report) .dashboard > .calendar-panel,
+body:not(.view-report) .dashboard > .chart-panel,
+body:not(.view-report) .dashboard > .table-panel {
+  display: none;
+}
+
 .settings-panel,
 .form-panel {
   min-height: 180px;
@@ -514,17 +520,14 @@ tbody tr:hover {
 
   .chart-panel,
   .table-panel,
-  .stats-grid {
+  .calendar-panel {
     display: none;
   }
 
   body.view-report .stats-grid,
+  body.view-report .calendar-panel,
   body.view-report .chart-panel,
   body.view-report .table-panel {
-    display: grid;
-  }
-
-  body.view-report .calendar-panel {
     display: block;
   }
 
