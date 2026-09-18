@@ -374,6 +374,9 @@ function bindEvents() {
   elements.shiftForm.addEventListener('submit', addEntry);
   [elements.startTimeInput, elements.endTimeInput].forEach((input) => {
     input.addEventListener('input', () => formatTimeInput(input));
+    input.addEventListener('focus', () => {
+      window.setTimeout(() => input.select(), 0);
+    });
     input.addEventListener('blur', () => {
       normalizeInvalidTimeInput(input);
       const parsed = parseTimeInput(input.value);
