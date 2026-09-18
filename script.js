@@ -26,6 +26,8 @@ const elements = {
   nextMonthBtn: document.querySelector('#nextMonthBtn'),
   entriesTableBody: document.querySelector('#entriesTableBody'),
   shiftForm: document.querySelector('#shiftForm'),
+  shiftSubmitBtn: document.querySelector('#shiftSubmitBtn'),
+  cancelEditBtn: document.querySelector('#cancelEditBtn'),
   menuToggle: document.querySelector('#menuToggle'),
   backToHomeBtn: document.querySelector('#backToHomeBtn'),
   resetDataBtn: document.querySelector('#resetDataBtn'),
@@ -34,6 +36,7 @@ const elements = {
 
 let state = loadState();
 let calendarDate = new Date();
+let editingEntryId = null;
 const viewMode = new URLSearchParams(window.location.search).get('view');
 
 function loadState() {
@@ -156,7 +159,10 @@ function renderTable() {
               <span class="switch-slider"></span>
             </label>
           </td>
-          <td><button class="delete-btn" data-id="${entry.id}" type="button">Удалить</button></td>
+          <td>
+            <button class="edit-btn" data-id="${entry.id}" type="button">Изменить</button>
+            <button class="delete-btn" data-id="${entry.id}" type="button">Удалить</button>
+          </td>
         </tr>
       `;
     })
@@ -292,8 +298,19 @@ function addEntry(event) {
     return;
   }
 
-  state.entries.push({
-    id: crypto.randomUUID(),
+  const duplicate = state.entries.some((entry) =>
+    entry.id !== editingEntryId &&
+    entry.date === date &&
+    entry.startTime === startTime &&
+    entry.endTime === endTime
+  );
+  if (duplicate) {
+    alert('Такая смена уже добавлена в историю');
+    return;
+  }
+
+  const updatedEntry = {
+    id: editingEntryId || crypto.randomUUID(),
     date,
     hours: paidHours,
     baseHours: hours,
@@ -302,12 +319,22 @@ function addEntry(event) {
     endTime,
     rate,
     note
-  });
+  };
 
+  if (editingEntryId) {
+    const index = state.entries.findIndex((entry) => entry.id === editingEntryId);
+    if (index !== -1) state.entries[index] = updatedEntry;
+  } else {
+    state.entries.push(updatedEntry);
+  }
+
+  editingEntryId = null;
   elements.noteInput.value = '';
   elements.startTimeInput.value = '09:00';
   elements.endTimeInput.value = '17:00';
   elements.shiftRateInput.value = elements.hourRateInput.value;
+  elements.shiftSubmitBtn.textContent = 'Добавить';
+  elements.cancelEditBtn.hidden = true;
 
   saveState();
   renderAll();
@@ -329,6 +356,32 @@ function toggleEntryLunch(id, enabled) {
   entry.hours = Math.max(0, baseHours - (enabled ? 0.5 : 0));
   saveState();
   renderAll();
+}
+
+function editEntry(id) {
+  const entry = state.entries.find((item) => item.id === id);
+  if (!entry) return;
+
+  editingEntryId = id;
+  elements.dateInput.value = entry.date;
+  elements.startTimeInput.value = entry.startTime || '09:00';
+  elements.endTimeInput.value = entry.endTime || '17:00';
+  elements.shiftRateInput.value = String(entry.rate || state.hourRate || 0);
+  elements.noteInput.value = entry.note || '';
+  elements.lunchBreakInput.checked = Boolean(entry.lunchBreak);
+  elements.shiftSubmitBtn.textContent = 'Сохранить изменения';
+  elements.cancelEditBtn.hidden = false;
+  elements.shiftForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cancelEdit() {
+  editingEntryId = null;
+  elements.shiftSubmitBtn.textContent = 'Добавить';
+  elements.cancelEditBtn.hidden = true;
+  elements.noteInput.value = '';
+  elements.startTimeInput.value = '09:00';
+  elements.endTimeInput.value = '17:00';
+  elements.shiftRateInput.value = elements.hourRateInput.value;
 }
 
 function resetData() {
@@ -401,6 +454,11 @@ function bindEvents() {
     renderCalendar();
   });
   elements.entriesTableBody.addEventListener('click', (event) => {
+    const editButton = event.target.closest('.edit-btn');
+    if (editButton) {
+      editEntry(editButton.dataset.id);
+      return;
+    }
     const button = event.target.closest('.delete-btn');
     if (!button) return;
     removeEntry(button.dataset.id);
@@ -412,6 +470,7 @@ function bindEvents() {
   });
   elements.hourRateInput.addEventListener('input', updateConfig);
   elements.lunchBreakInput.addEventListener('change', updateConfig);
+  elements.cancelEditBtn.addEventListener('click', cancelEdit);
 }
 
 function renderAll() {
