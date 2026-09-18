@@ -40,7 +40,14 @@ function loadState() {
   const saved = localStorage.getItem(STORAGE_KEY);
 
   if (saved) {
-    return JSON.parse(saved);
+    const loaded = JSON.parse(saved);
+    loaded.entries = (loaded.entries || []).map((entry) => {
+      if (entry.baseHours === undefined && entry.lunchBreak) {
+        return { ...entry, baseHours: Number(entry.hours || 0) + 0.5 };
+      }
+      return entry;
+    });
+    return loaded;
   }
 
   return {
