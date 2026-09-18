@@ -278,6 +278,10 @@ body:not(.view-report) .dashboard > .chart-panel {
   transform: translateX(18px);
 }
 
+.table-switch input:checked + .switch-slider {
+  background: var(--blue);
+}
+
 .quick-actions {
   margin-top: 20px;
 }
